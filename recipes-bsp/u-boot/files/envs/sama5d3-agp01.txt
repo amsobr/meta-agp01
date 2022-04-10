@@ -1,0 +1,10 @@
+bootcmd=run bootcmd_boot;
+bootargs=console=ttyS1,115200 root=/dev/mmcblk0p2 rw rootfstype=ext4 rootdelay=5
+bootargs2=console=ttyS1,115200 mtdparts=atmel_nand:256k(bootstrap)ro,768k(uboot)ro,256k(env_redundant),256k(env),6656k(itb)ro,-(rootfs) root=/dev/mmcblk0p2 rw rootfstype=ext4 rootdelay=2
+bootcmd_boot=fatload mmc 0:1 0x24000000 sama5d3-agp01.itb; bootm 0x24000000
+bootdelay=1
+ethact=gmac0
+stderr=serial
+stdin=serial
+stdout=serial
+

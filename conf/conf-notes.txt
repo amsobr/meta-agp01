@@ -1,0 +1,22 @@
+
+### Shell environment set up for builds. ###
+
+You can now run '[MACHINE=<machine>] bitbake <target>'
+
+Supported machines are:
+- sama5d3-agp01
+- SAMA5D3 product family / sama5d3xek, sama5d3-xplained (untested)
+
+Available targets are:
+    agp01-daq-image   
+    agp01-toolchain
+    microchip-headless-image
+    core-image-minimal
+    core-image-sato
+    meta-toolchain
+    meta-ide-support
+
+Other commonly useful commands are:
+ - 'devtool' and 'recipetool' handle common recipe tasks
+ - 'bitbake-layers' handles common layer tasks
+ - 'oe-pkgdata-util' handles common target package tasks

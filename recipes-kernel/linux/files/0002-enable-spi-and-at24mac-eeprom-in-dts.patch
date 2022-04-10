@@ -1,0 +1,154 @@
+From 73d963375891a5e5398b3152214b31b44325ae12 Mon Sep 17 00:00:00 2001
+From: amsobr <antonio@barix.com>
+Date: Sun, 10 Apr 2022 03:22:06 +0100
+Subject: [PATCH] enable spi and at24mac eeprom in dts
+
+---
+ arch/arm/boot/dts/at91-sama5d3-agp01.dts | 63 ++++++++++++++++--------
+ 1 file changed, 42 insertions(+), 21 deletions(-)
+
+diff --git a/arch/arm/boot/dts/at91-sama5d3-agp01.dts b/arch/arm/boot/dts/at91-sama5d3-agp01.dts
+index 0bdf9bd8d95d..1a5f6d451bb8 100644
+--- a/arch/arm/boot/dts/at91-sama5d3-agp01.dts
++++ b/arch/arm/boot/dts/at91-sama5d3-agp01.dts
+@@ -73,29 +73,30 @@ slot@0 {
+ 
+ 			spi0: spi@f0004000 {
+ 				status = "okay";
++				cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15>, <0>;
+ 				/*cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <&pioD 15>, <&pioD 16>;*/
+-				cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <0>, <0>;
++				/*cs-gpios = <&pioD 13 0>, <&pioD 14 0>, <0>, <0>;*/
+ 
+ 				device@0 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;     // 50 MHz
+ 					reg = <0>;
+ 				};
+ 				device@1 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;      // 50 MHz
+ 					reg = <1>;
+ 				};
+-				/*device@2 {
+-					compatible = "spidev";
++				device@2 {
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <5000000>;      // 5 MHz
+ 					reg = <2>;
+-				};*/
+-				/*device@3 {
+-					compatible = "spidev";
+-					spi-max-frequency = <5000000>;      // 5 MHz
+-					reg = <3>;
+-				};*/
++				};
++				//device@3 {
++				//	compatible = "linux,spidev";
++				//	spi-max-frequency = <5000000>;      // 5 MHz
++				//	reg = <3>;
++				//};
+ 			};
+ 
+ 			spi1: spi@f8008000 {
+@@ -104,22 +105,22 @@ spi1: spi@f8008000 {
+ 				cs-gpios = <&pioC 25 0>, <&pioC 26 0>, <&pioC 27 0>, <&pioC 28 0>;
+ 				
+ 				device@0 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;     // 50 MHz
+ 					reg = <0>;
+ 				};
+ 				device@1 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;      // 5 MHz
+ 					reg = <1>;
+ 				};
+ 				device@2 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;      // 5 MHz
+ 					reg = <2>;
+ 				};
+ 				device@3 {
+-					compatible = "spidev";
++					compatible = "linux,spidev";
+ 					spi-max-frequency = <50000000>;      // 5 MHz
+ 					reg = <3>;
+ 				};
+@@ -146,8 +147,8 @@ i2c1: i2c@f0018000 {
+ 			/* Bit banging I2C wired on the Atmel MAC chip */
+ 			i2c3@ {
+ 				compatible = "i2c-gpio";
+-				gpios = <&pioE 1 0 /* SDA */
+-						 &pioE 2 0 /* SCK */
++				gpios = <&pioE 1 GPIO_OPEN_DRAIN /* SDA */
++						 &pioE 2 GPIO_OPEN_DRAIN /* SCK */
+ 						>;
+ 
+ 				/*i2c-gpio,sda-open-drain;*/
+@@ -155,6 +156,19 @@ &pioE 2 0 /* SCK */
+ 				i2c-gpio,delay-us = <4>;	/* ~178 kHz */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
++				
++				eeprom@58 {
++					compatible = "atmel,24mac402";
++					pagesize = <256>;
++					read-only;
++					reg = <0x58>;
++					#address-cells = <1>;
++					#size-cells = <1>;
++
++					eth0_addr: eth-mac-addr@9A {
++						reg = <0x0 0x06>;
++					};
++				};
+ 			};
+ 
+ 			macb1: ethernet@f802c000 {
+@@ -209,6 +223,10 @@ macb1: ethernet@f802c000 {
+ 
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
++				
++				nvmem-cells = <&eth0_addr>;
++				nvmem-cell-names = "mac-address";
++				
+ 				phy0: ethernet-phy@1 {
+ 					interrupt-parent = <&pioE>;
+ 					interrupts = <30 IRQ_TYPE_EDGE_FALLING>;
+@@ -218,10 +236,10 @@ phy0: ethernet-phy@1 {
+ 
+ 			pinctrl@fffff200 {
+ 				board {
+-					pinctrl_mmc0_cd: mmc0_cd {
+-						atmel,pins =
+-							<AT91_PIOD 17 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PD17 GPIO with pullup deglitch */
+-					};
++					//pinctrl_mmc0_cd: mmc0_cd {
++					//	atmel,pins =
++					//		<AT91_PIOD 17 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>; /* PD17 GPIO with pullup deglitch */
++					//};
+ 
+ 					pinctrl_mmc1_cd: mmc1_cd {
+ 						atmel,pins =
+@@ -254,6 +272,8 @@ pinctrl_usba_vbus: usba_vbus {
+ 					};
+ 				};
+ 			};
++			
++			
+ 
+ 			dbgu: serial@ffffee00 {
+ 				dmas = <0>, <0>;	/*  Do not use DMA for dbgu */
+@@ -329,4 +349,5 @@ panel_input: endpoint@0 {
+ 			};
+ 		};
+ 	};
++	
+ };
