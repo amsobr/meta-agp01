@@ -22,9 +22,8 @@ images may be available for building.
 
 
 ## Sources and Dependencies
-
 | layer                 | URL                                            | branch  |
-+-----------------------+------------------------------------------------+---------+
+|-----------------------|------------------------------------------------|---------|
 | **meta-agp01 (this)** | https://github.com/amsobr/meta-agp01           | dunfell |
 | **meta-atmel**        | https://github.com/linux4sam/meta-atmel.git    | dunfell |
 | **meta-openembedded** | https://git.openembedded.org/meta-openembedded | dunfell |
@@ -99,12 +98,9 @@ bitbake agp01-toolchain
 Both commands take a considerable amount of time to execute, especially when
 ran for the first time.
 
-The output files are located in TOPDIR/build/tmp/deploy/images/sama5d3-agp01:
-* agp01-fw-sama5d3-agp01-***.wic - sdcard image
-* ???????.sh - installable toolchain
-
-
-
+Output files:
+* **SD card image:** TOPDIR/build/tmp/deploy/images/sama5d3-agp01/agp0-fw-sama5d3-agp01.wic - sdcard image
+* **toolchain:** TOPDIR/build/tmp/deploy/sdk/poky-atmel-glibc-x86_64-agp01-toolchain-cortexa5t2hf-vfp-sama5d3-agp01-toolchain-VERSION.sh
 
 # Development
 
